@@ -5,6 +5,7 @@ from fflag import FeatureFlag
 from redis.exceptions import ConnectionError
 import random
 import requests
+import json
 import sys
 from timeit import default_timer as timer
 
@@ -12,8 +13,9 @@ app = Flask(__name__)
 
 giphy_string = "http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag="
 app_id = "db3cd15c"
-ox_key = "a4592fe02f2cacf095098cb2a4f07fee"
-ox_baseurl ="https://od-api.oxforddictionaries.com/api/v1";
+app_key = "a4592fe02f2cacf095098cb2a4f07fee"
+app_baseurl ="https://od-api.oxforddictionaries.com/api/v1/";
+language = 'en'
 retries = 5
 
 redis_mode = True
@@ -45,8 +47,8 @@ def timer_wrap(func):
     return func_wrapper
 
 
-@app.route('/party')
-def party_gif():
+@app.route('/dict')
+def get_definition():
     resp = get_resp_dict(giphy_string + "party")
     if resp is None:
         abort(make_response('Something went wrong:<br>No gif for you', 500))
@@ -73,6 +75,13 @@ def new_feature():
     if redis_mode:
         if feat_flag.get_feature_flag('new_feature'):
             return "This is the new feature"
+    abort(404)
+
+@app.route('/word/<wordid>')
+def find_word(wordid):
+    url = app_baseurl+ 'entries/' + language + '/'+ wordid.lower() 
+    r = requests.get(url, headers = {'app_id': app_id, 'app_key': app_key})
+    return 'Meaning of the word is :-' + r.text
     abort(404)
 
 
