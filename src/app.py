@@ -47,16 +47,6 @@ def timer_wrap(func):
     return func_wrapper
 
 
-@app.route('/dict')
-def get_definition():
-    resp = get_resp_dict(giphy_string + "party")
-    if resp is None:
-        abort(make_response('Something went wrong:<br>No gif for you', 500))
-
-    if resp['data']['image_url']:
-        img_url = resp['data']['image_url']
-        return '<img src=' + img_url + '>'
-
 
 @app.route('/')
 @timer_wrap
